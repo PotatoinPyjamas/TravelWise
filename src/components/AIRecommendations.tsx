@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Sparkles, ChevronDown, ChevronUp, MapPin, Utensils, Hotel, Calendar, Sun, Cloud, CloudRain, Car, Train, ExternalLink } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronUp, MapPin, Utensils, Hotel, Calendar, Sun, Cloud, CloudRain, Car, Train, ExternalLink, Star } from 'lucide-react';
 import { SearchData, Recommendation, Itinerary, WeatherInfo } from '../types';
 import { getWeatherByCity } from '../services/weatherService';
 import { generatePersonalizedRecommendations, generateWeatherBasedTips } from '../services/geminiService';
@@ -498,18 +498,42 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   };
 
   const generateMockFoodOptions = (destination: string) => {
+    // City-specific authentic food recommendations based on Gemini insights
     const foodOptions: { [key: string]: any[] } = {
-      'Goa': [
-        { name: 'Fish Curry Rice', description: 'Authentic Goan staple with coconut curry', price: '₹180', type: 'local', rating: 4.6 },
-        { name: 'Bebinca', description: 'Traditional Goan layered dessert', price: '₹120', type: 'dessert', rating: 4.4 },
-        { name: 'Prawn Balchão', description: 'Spicy pickled prawns - a Goan delicacy', price: '₹280', type: 'seafood', rating: 4.7 },
-        { name: 'Cashew Feni', description: 'Local spirit made from cashew fruit', price: '₹150/glass', type: 'drink', rating: 4.2 }
+      'Hyderabad': [
+        { name: 'Hyderabadi Biryani', description: 'World-famous aromatic basmati rice with tender mutton/chicken', price: '₹300', type: 'local', rating: 4.8 },
+        { name: 'Haleem', description: 'Slow-cooked lentil and meat stew, a Ramadan specialty', price: '₹180', type: 'local', rating: 4.6 },
+        { name: 'Double Ka Meetha', description: 'Traditional bread pudding with cardamom and nuts', price: '₹120', type: 'dessert', rating: 4.4 }
       ],
       'Mumbai': [
-        { name: 'Vada Pav', description: 'Mumbai\'s iconic street food burger', price: '₹15', type: 'street', rating: 4.5 },
-        { name: 'Pav Bhaji', description: 'Spicy vegetable curry with bread', price: '₹80', type: 'street', rating: 4.6 },
-        { name: 'Bombay Duck Curry', description: 'Local fish curry specialty', price: '₹220', type: 'local', rating: 4.4 },
-        { name: 'Kulfi', description: 'Traditional Indian ice cream', price: '₹40', type: 'dessert', rating: 4.3 }
+        { name: 'Vada Pav', description: 'Mumbai\'s iconic street burger with spiced potato fritter', price: '₹25', type: 'street', rating: 4.7 },
+        { name: 'Pav Bhaji', description: 'Spiced vegetable curry served with buttered bread rolls', price: '₹80', type: 'street', rating: 4.6 },
+        { name: 'Modak', description: 'Sweet steamed dumplings filled with jaggery and coconut', price: '₹60', type: 'dessert', rating: 4.3 }
+      ],
+      'Delhi': [
+        { name: 'Chole Bhature', description: 'Spicy chickpea curry with deep-fried bread', price: '₹120', type: 'local', rating: 4.5 },
+        { name: 'Paranthe Wali Gali Parathas', description: 'Stuffed flatbreads from the famous Old Delhi lane', price: '₹100', type: 'local', rating: 4.7 },
+        { name: 'Kulfi Faluda', description: 'Traditional ice cream with vermicelli and rose syrup', price: '₹80', type: 'dessert', rating: 4.4 }
+      ],
+      'Goa': [
+        { name: 'Fish Curry Rice', description: 'Coconut-based fish curry with steamed rice', price: '₹200', type: 'local', rating: 4.6 },
+        { name: 'Bebinca', description: 'Traditional Goan layered dessert with coconut milk', price: '₹150', type: 'dessert', rating: 4.3 },
+        { name: 'Prawn Balchão', description: 'Spicy pickled prawns in tangy sauce', price: '₹250', type: 'seafood', rating: 4.5 }
+      ],
+      'Chennai': [
+        { name: 'Chettinad Chicken', description: 'Spicy Tamil Nadu chicken curry with aromatic spices', price: '₹220', type: 'local', rating: 4.6 },
+        { name: 'Masala Dosa', description: 'Crispy rice crepe with spiced potato filling', price: '₹60', type: 'local', rating: 4.7 },
+        { name: 'Filter Coffee & Mysore Pak', description: 'South Indian coffee with traditional gram flour sweet', price: '₹80', type: 'dessert', rating: 4.4 }
+      ],
+      'Bangalore': [
+        { name: 'Bisi Bele Bath', description: 'Karnataka\'s signature spiced rice and lentil dish', price: '₹100', type: 'local', rating: 4.5 },
+        { name: 'Mysore Masala Dosa', description: 'Crispy dosa with spicy red chutney', price: '₹70', type: 'local', rating: 4.6 },
+        { name: 'Dharwad Peda', description: 'Famous Karnataka milk-based sweet', price: '₹40', type: 'dessert', rating: 4.3 }
+      ],
+      'Kolkata': [
+        { name: 'Macher Jhol', description: 'Bengali fish curry with potatoes', price: '₹180', type: 'local', rating: 4.6 },
+        { name: 'Kathi Roll', description: 'Kolkata\'s famous wrap with kebab and onions', price: '₹80', type: 'street', rating: 4.5 },
+        { name: 'Rasgulla', description: 'Spongy cottage cheese balls in sugar syrup', price: '₹60', type: 'dessert', rating: 4.7 }
       ]
     };
     
@@ -521,35 +545,168 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   };
 
   const getLuxuryRecommendations = () => {
-    // Return Gemini AI generated luxury recommendations, fallback to mock if empty
-    if (luxuryRecommendations.length > 0) {
-      return luxuryRecommendations;
-    }
-    
-    // Fallback mock data
-    return [
-      {
-        type: 'hotel',
-        name: 'The Leela Palace',
-        description: 'Ultra-luxury hotel with royal treatment',
-        price: '₹25,000/night',
-        rating: 4.9
-      },
-      {
-        type: 'restaurant',
-        name: 'Michelin Star Experience',
-        description: 'Fine dining at its absolute best',
-        price: '₹8,000/person',
-        rating: 4.8
-      },
-      {
-        type: 'experience',
-        name: 'Private City Tour',
-        description: 'Exclusive guided tour with luxury transport',
-        price: '₹15,000/day',
-        rating: 4.7
-      }
-    ];
+    // City-specific luxury recommendations with real expensive restaurants
+    const cityLuxuryData: { [key: string]: any[] } = {
+      'Mumbai': [
+        {
+          type: 'restaurant',
+          name: 'Trishna',
+          description: 'Michelin-starred contemporary Indian seafood with innovative preparations',
+          price: '₹12,000/person',
+          rating: 4.9,
+          specialFeatures: ['Michelin Star', 'Chef Rahul Akerkar', 'Wine Pairing']
+        },
+        {
+          type: 'restaurant', 
+          name: 'The Table',
+          description: 'Fine dining European cuisine with Mumbai\'s skyline views',
+          price: '₹10,000/person',
+          rating: 4.8,
+          specialFeatures: ['Rooftop Dining', 'European Cuisine', 'City Views']
+        },
+        {
+          type: 'hotel',
+          name: 'The Taj Mahal Palace',
+          description: 'Iconic heritage luxury hotel overlooking the Gateway of India',
+          price: '₹45,000/night',
+          rating: 4.9,
+          specialFeatures: ['Heritage', 'Sea View', 'Presidential Suite']
+        }
+      ],
+      'Delhi': [
+        {
+          type: 'restaurant',
+          name: 'Indian Accent',
+          description: 'World-renowned modern Indian cuisine in elegant colonial setting',
+          price: '₹15,000/person',
+          rating: 4.9,
+          specialFeatures: ['World\'s 50 Best', 'Chef Manish Mehrotra', 'Tasting Menu']
+        },
+        {
+          type: 'restaurant',
+          name: 'Varq',
+          description: 'Progressive Indian fine dining at The Taj Mahal Hotel',
+          price: '₹12,000/person',
+          rating: 4.8,
+          specialFeatures: ['Molecular Gastronomy', 'Silver Leaf Decor', 'Wine Cellar']
+        },
+        {
+          type: 'hotel',
+          name: 'The Imperial',
+          description: 'Art Deco masterpiece with colonial grandeur and modern luxury',
+          price: '₹40,000/night',
+          rating: 4.8,
+          specialFeatures: ['Art Deco', 'Heritage', 'Spa']
+        }
+      ],
+      'Goa': [
+        {
+          type: 'restaurant',
+          name: 'Thalassa',
+          description: 'Cliffside Greek fine dining with spectacular sunset views',
+          price: '₹8,000/person',
+          rating: 4.7,
+          specialFeatures: ['Cliffside', 'Greek Cuisine', 'Sunset Views']
+        },
+        {
+          type: 'restaurant',
+          name: 'Spice Studio',
+          description: 'Contemporary Indian cuisine with ocean views and wine pairing',
+          price: '₹7,500/person',
+          rating: 4.6,
+          specialFeatures: ['Ocean Views', 'Contemporary Indian', 'Wine Pairing']
+        },
+        {
+          type: 'hotel',
+          name: 'Taj Exotica Resort & Spa',
+          description: 'Luxury beachfront resort with private beach and world-class spa',
+          price: '₹35,000/night',
+          rating: 4.8,
+          specialFeatures: ['Private Beach', 'Spa', 'Golf Course']
+        }
+      ],
+      'Hyderabad': [
+        {
+          type: 'restaurant',
+          name: 'Adaa',
+          description: 'Royal Hyderabadi cuisine in palatial setting at Taj Falaknuma Palace',
+          price: '₹10,000/person',
+          rating: 4.8,
+          specialFeatures: ['Palace Dining', 'Royal Cuisine', 'Heritage']
+        },
+        {
+          type: 'restaurant',
+          name: 'Celeste',
+          description: 'Pan-Asian fine dining with city skyline views',
+          price: '₹8,500/person',
+          rating: 4.7,
+          specialFeatures: ['Pan-Asian', 'Skyline Views', 'Rooftop']
+        },
+        {
+          type: 'hotel',
+          name: 'Taj Falaknuma Palace',
+          description: 'Former Nizam\'s palace turned luxury hotel with royal treatment',
+          price: '₹50,000/night',
+          rating: 4.9,
+          specialFeatures: ['Palace', 'Royal Heritage', 'Butler Service']
+        }
+      ],
+      'Chennai': [
+        {
+          type: 'restaurant',
+          name: 'Dakshin',
+          description: 'Award-winning South Indian fine dining with regional specialties',
+          price: '₹6,500/person',
+          rating: 4.7,
+          specialFeatures: ['Regional Cuisine', 'Award Winning', 'Traditional']
+        },
+        {
+          type: 'restaurant',
+          name: 'Golden Dragon',
+          description: 'Upscale Chinese cuisine with elegant ambiance',
+          price: '₹6,000/person',
+          rating: 4.6,
+          specialFeatures: ['Chinese Cuisine', 'Elegant Ambiance', 'Dim Sum']
+        },
+        {
+          type: 'hotel',
+          name: 'The Leela Palace Chennai',
+          description: 'Luxury beachfront hotel with contemporary design and spa',
+          price: '₹30,000/night',
+          rating: 4.7,
+          specialFeatures: ['Beachfront', 'Contemporary', 'Spa']
+        }
+      ],
+      'Bangalore': [
+        {
+          type: 'restaurant',
+          name: 'Caperberry',
+          description: 'European fine dining with innovative molecular gastronomy',
+          price: '₹9,000/person',
+          rating: 4.8,
+          specialFeatures: ['Molecular Gastronomy', 'European', 'Innovation']
+        },
+        {
+          type: 'restaurant',
+          name: 'Rim Naam',
+          description: 'Authentic Thai cuisine in traditional setting with live music',
+          price: '₹7,000/person',
+          rating: 4.7,
+          specialFeatures: ['Authentic Thai', 'Live Music', 'Traditional Setting']
+        },
+        {
+          type: 'hotel',
+          name: 'The Oberoi Bangalore',
+          description: 'Contemporary luxury hotel with award-winning spa and dining',
+          price: '₹25,000/night',
+          rating: 4.6,
+          specialFeatures: ['Contemporary', 'Award-winning Spa', 'Business District']
+        }
+      ]
+    };
+
+    const cityData = cityLuxuryData[searchData.to] || cityLuxuryData['Mumbai'];
+    return cityData;
   };
 
   const getWeatherIcon = (icon: string) => {
@@ -771,15 +928,42 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
                   
                   {showLuxury && (
                     <>
-                      <p className="text-purple-700 mb-6">Sometimes it's worth treating yourself to something special:</p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <p className="text-purple-700 mb-6">Experience {searchData.to}'s finest dining and luxury accommodations:</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {getLuxuryRecommendations().map((rec, idx) => (
-                          <div key={idx} className="bg-white/80 backdrop-blur rounded-lg p-4 border border-purple-200 hover:shadow-lg transition-all duration-200">
-                            <h5 className="font-semibold text-purple-900 mb-2">{rec.name}</h5>
-                            <p className="text-sm text-purple-700 mb-3">{rec.description}</p>
+                          <div key={idx} className="bg-white/90 backdrop-blur rounded-xl p-5 border border-purple-200 hover:shadow-xl hover:border-purple-300 transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="p-2 bg-purple-100 rounded-lg">
+                                {rec.type === 'restaurant' ? (
+                                  <Utensils size={16} className="text-purple-600" />
+                                ) : rec.type === 'hotel' ? (
+                                  <MapPin size={16} className="text-purple-600" />
+                                ) : (
+                                  <Star size={16} className="text-purple-600" />
+                                )}
+                              </div>
+                              <span className="text-xs font-medium text-purple-500 uppercase tracking-wide">{rec.type}</span>
+                            </div>
+                            
+                            <h5 className="font-bold text-purple-900 mb-2 text-lg">{rec.name}</h5>
+                            <p className="text-sm text-purple-700 mb-3 leading-relaxed">{rec.description}</p>
+                            
+                            {rec.specialFeatures && (
+                              <div className="flex flex-wrap gap-1 mb-3">
+                                {rec.specialFeatures.slice(0, 3).map((feature: string, featureIdx: number) => (
+                                  <span key={featureIdx} className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                                    {feature}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-bold text-purple-600">{rec.price}</span>
-                              <span className="text-sm text-yellow-500">★ {rec.rating}</span>
+                              <span className="text-sm font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">{rec.price}</span>
+                              <span className="text-sm text-yellow-500 flex items-center gap-1">
+                                <Star size={14} className="fill-current" />
+                                {rec.rating}
+                              </span>
                             </div>
                           </div>
                         ))}
