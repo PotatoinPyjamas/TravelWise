@@ -124,7 +124,7 @@ const FlightResults: React.FC<FlightResultsProps> = ({
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             <div className="flex items-center gap-4">
               <button 
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -149,58 +149,58 @@ const FlightResults: React.FC<FlightResultsProps> = ({
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
             <button 
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
               onClick={onBackToSearch}
             >
               <ArrowLeft size={20} />
               Back to Search
             </button>
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800">{searchData.from} → {searchData.to}</h2>
-              <p className="text-gray-600">{searchData.departureDate} • {searchData.passengers} passenger{searchData.passengers > 1 ? 's' : ''}</p>
+              <h2 className="text-lg sm:text-2xl font-semibold text-gray-800">{searchData.from} → {searchData.to}</h2>
+              <p className="text-sm sm:text-base text-gray-600">{searchData.departureDate} • {searchData.passengers} passenger{searchData.passengers > 1 ? 's' : ''}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Filter Tabs */}
-        <div className="mb-8">
-          <div className="flex gap-4 bg-white p-4 rounded-xl shadow-md">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl shadow-md">
             <button 
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all text-sm sm:text-base flex-1 sm:flex-initial ${
                 activeFilter === 'all' 
                   ? 'bg-primary-500 text-white shadow-lg' 
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
               onClick={() => setActiveFilter('all')}
             >
-              <Filter size={16} />
+              <Filter size={14} className="sm:w-4 sm:h-4" />
               All Flights
             </button>
             <button 
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all text-sm sm:text-base flex-1 sm:flex-initial ${
                 activeFilter === 'cheapest' 
                   ? 'bg-primary-500 text-white shadow-lg' 
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
               onClick={() => setActiveFilter('cheapest')}
             >
-              <DollarSign size={16} />
+              <DollarSign size={14} className="sm:w-4 sm:h-4" />
               Cheapest
             </button>
             <button 
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all text-sm sm:text-base flex-1 sm:flex-initial ${
                 activeFilter === 'fastest' 
                   ? 'bg-primary-500 text-white shadow-lg' 
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
               onClick={() => setActiveFilter('fastest')}
             >
-              <Clock size={16} />
+              <Clock size={14} className="sm:w-4 sm:h-4" />
               Fastest
             </button>
           </div>
@@ -216,8 +216,8 @@ const FlightResults: React.FC<FlightResultsProps> = ({
         {/* Flight Results */}
         <div className="space-y-4">
           {filteredFlights.map((flight) => (
-            <div key={flight.id} className="bg-white rounded-xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-              <div className="flex items-center justify-between">
+            <div key={flight.id} className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex-1">
                   <div className="mb-4">
                     <h4 className="text-lg font-semibold text-gray-800">{flight.airline}</h4>
@@ -250,9 +250,9 @@ const FlightResults: React.FC<FlightResultsProps> = ({
                   </div>
                 </div>
                 
-                <div className="text-right ml-8">
+                <div className="text-center lg:text-right lg:ml-8 flex-shrink-0">
                   <div className="text-3xl font-bold text-gray-800 mb-4">{formatPrice(flight.price)}</div>
-                  <button className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-primary-600 hover:to-secondary-600 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1">
+                  <button className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:from-primary-600 hover:to-secondary-600 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 text-sm sm:text-base w-full sm:w-auto">
                     Book Now
                   </button>
                 </div>

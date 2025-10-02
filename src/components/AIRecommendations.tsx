@@ -876,16 +876,16 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   // Show AI recommendations for all trip types
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div className={`bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-2xl' : ''}`}>
         <button 
-          className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-4 hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 hover:shadow-lg"
+          className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 text-white p-3 sm:p-4 hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 hover:shadow-lg"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Sparkles size={24} className="animate-pulse" />
-              <span className="text-lg font-semibold">AI Travel Insights</span>
+              <span className="text-base sm:text-lg font-semibold">AI Travel Insights</span>
             {weather && !isExpanded && (
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
                 {getWeatherIcon(weather.icon)}
