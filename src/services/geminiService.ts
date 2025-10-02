@@ -36,8 +36,14 @@ export const generatePersonalizedRecommendations = async (
     }
     const itineraryDays = Math.max(1, Math.min(tripDays, 7));
 
-    // Create simple, focused prompt
-    const prompt = `You are a travel expert. Create specific recommendations for a ${tripDays}-day trip to ${searchData.to}.
+    // Create comprehensive city-specific prompt
+    const prompt = `You are a local travel expert for ${searchData.to}. Create detailed, authentic recommendations for a ${tripDays}-day trip from ${searchData.from} to ${searchData.to}.
+
+Weather context: ${weather?.temperature || 'N/A'}, ${weather?.condition || 'N/A'}
+Trip duration: ${tripDays} days
+Travelers: ${searchData.passengers} people
+
+Generate REAL, SPECIFIC places and activities in ${searchData.to}. Include actual restaurant names, specific attractions, real hotels, and authentic local experiences.
 
 Respond with ONLY valid JSON in this exact format:
 
@@ -66,16 +72,51 @@ Respond with ONLY valid JSON in this exact format:
   "itineraries": [
     {
       "type": "popular",
-      "title": "${itineraryDays}-Day ${searchData.to} Experience", 
-      "description": "Highlights of ${searchData.to}",
+      "title": "${itineraryDays}-Day Popular ${searchData.to} Experience", 
+      "description": "Discover the must-see attractions and famous spots in ${searchData.to}",
       "days": [
-        {"day": 1, "title": "Day 1: Explore", "activities": [{"time": "10:00 AM", "title": "Activity", "description": "Description", "location": "${searchData.to}", "duration": "2 hours"}], "tips": ["Tip 1"]}
+        {
+          "day": 1, 
+          "title": "Day 1: Arrival & City Center", 
+          "activities": [
+            {"time": "10:00 AM", "title": "Specific Activity Name", "description": "Detailed description of what to do", "location": "${searchData.to}", "duration": "2 hours"},
+            {"time": "1:00 PM", "title": "Lunch at Specific Restaurant", "description": "Try local specialties", "location": "${searchData.to}", "duration": "1 hour"},
+            {"time": "3:00 PM", "title": "Famous Landmark Visit", "description": "Visit iconic attraction", "location": "${searchData.to}", "duration": "2 hours"}
+          ], 
+          "tips": ["Practical tip for day 1", "Local advice"]
+        }
+      ]
+    },
+    {
+      "type": "offbeat",
+      "title": "${itineraryDays}-Day Hidden Gems of ${searchData.to}",
+      "description": "Explore local secrets and authentic experiences in ${searchData.to}",
+      "days": [
+        {
+          "day": 1,
+          "title": "Day 1: Local Neighborhoods",
+          "activities": [
+            {"time": "9:00 AM", "title": "Local Market Visit", "description": "Experience authentic local life", "location": "${searchData.to}", "duration": "2 hours"},
+            {"time": "12:00 PM", "title": "Hidden Local Eatery", "description": "Where locals actually eat", "location": "${searchData.to}", "duration": "1 hour"},
+            {"time": "2:00 PM", "title": "Off-beat Attraction", "description": "Lesser-known but amazing spot", "location": "${searchData.to}", "duration": "2 hours"}
+          ],
+          "tips": ["Local insider tip", "Cultural advice"]
+        }
       ]
     }
   ]
 }
 
-Make ${itineraryDays} days for each itinerary. Include specific ${searchData.to} recommendations. Return only valid JSON.
+IMPORTANT: Generate exactly ${itineraryDays} days for EACH itinerary (both popular and offbeat). Each day should have 3-4 activities with specific times. Use REAL places in ${searchData.to}, not generic names.
+
+For ${searchData.to}, include:
+- Actual restaurant names and local dishes
+- Real attractions and landmarks
+- Specific neighborhoods and areas
+- Local transportation options
+- Weather-appropriate activities (current: ${weather?.condition || 'unknown'})
+
+Return ONLY valid JSON, no additional text.
 `;
 
     console.log('📤 Sending prompt to Gemini...');

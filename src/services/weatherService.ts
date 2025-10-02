@@ -20,6 +20,13 @@ export interface WeatherData {
 
 export const getWeatherByCity = async (city: string, date?: string): Promise<WeatherData> => {
   try {
+    // Add country context for Indian cities to avoid wrong locations
+    const cityQuery = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Hyderabad', 'Kolkata', 'Pune', 'Goa'].includes(city) 
+      ? `${city}, India` 
+      : city;
+    
+    console.log(`🌍 Weather query: "${cityQuery}" (original: "${city}")`);
+    
     // If date is provided and it's in the future (up to 3 days), use forecast
     const today = new Date();
     const targetDate = date ? new Date(date) : today;
@@ -32,7 +39,7 @@ export const getWeatherByCity = async (city: string, date?: string): Promise<Wea
       response = await axios.get(`${BASE_URL}/forecast.json`, {
         params: {
           key: API_KEY,
-          q: city,
+          q: cityQuery,
           days: daysDiff + 1,
           aqi: 'no'
         }
@@ -67,7 +74,7 @@ export const getWeatherByCity = async (city: string, date?: string): Promise<Wea
     response = await axios.get(`${BASE_URL}/current.json`, {
       params: {
         key: API_KEY,
-        q: city,
+        q: cityQuery,
         aqi: 'no'
       }
     });

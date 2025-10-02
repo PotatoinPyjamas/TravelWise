@@ -22,6 +22,7 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   const [luxuryRecommendations, setLuxuryRecommendations] = useState<any[]>([]);
 
   const generateRecommendations = useCallback(async () => {
+    console.log('🔥 generateRecommendations CALLED!');
     setLoading(true);
     
     console.log('🚀 Starting generateRecommendations with searchData:', searchData);
@@ -50,33 +51,88 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
         conditionCode: liveWeather.conditionCode
       };
 
-      // TEMPORARILY SKIP GEMINI - Use only mock data to test
-      console.log('🚫 SKIPPING Gemini integration - using mock data only');
+      // Generate AI-powered recommendations using Gemini
+      console.log('🤖 About to start Gemini integration for:', searchData.to);
+      console.log('🤖 Weather info available:', !!weatherInfo);
       
-      // Just use weather info as-is
-      const combinedWeatherInfo = {
-        ...weatherInfo,
-        travelTips: liveWeather.travelTips || []
-      };
-      
-      // Generate mock data
-    const mockRecommendations = generateMockRecommendations(searchData.to);
-    const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
-      const mockTravelOptions = generateMockTravelOptions(searchData.to);
-      const mockFoodOptions = generateMockFoodOptions(searchData.to);
-      
-      console.log('🔄 Mock itineraries generated:', mockItineraries.length);
-      console.log('🔄 First itinerary days:', mockItineraries[0]?.days?.length || 0);
-      console.log('🔄 Second itinerary days:', mockItineraries[1]?.days?.length || 0);
-      
-      setRecommendations(mockRecommendations);
-      setItineraries(mockItineraries);
-      setWeather(combinedWeatherInfo);
-      setTravelOptions(mockTravelOptions);
-      setFoodOptions(mockFoodOptions);
-      setLuxuryRecommendations([
-        { type: 'hotel', name: 'Luxury Hotel', description: 'Premium accommodation', price: '₹15,000+', rating: 4.8, specialFeatures: ['Spa', 'Fine Dining'] }
-      ]);
+      try {
+        console.log('🤖 Calling Gemini API...');
+        const geminiRecommendations = await generatePersonalizedRecommendations(searchData, weatherInfo);
+        console.log('🤖 Gemini recommendations received:', geminiRecommendations);
+        console.log('🤖 Attractions from Gemini:', geminiRecommendations.attractions?.length || 0);
+        console.log('🤖 Restaurants from Gemini:', geminiRecommendations.restaurants?.length || 0);
+        
+        // Get additional weather-based tips from Gemini
+        const aiWeatherTips = await generateWeatherBasedTips(weatherInfo, searchData.to);
+        
+        // Combine weather tips from both sources
+        const combinedWeatherInfo = {
+          ...weatherInfo,
+          travelTips: [...(liveWeather.travelTips || []), ...aiWeatherTips].slice(0, 4)
+        };
+        
+        // Combine all recommendations
+        const allRecommendations = [
+          ...geminiRecommendations.attractions,
+          ...geminiRecommendations.restaurants,
+          ...geminiRecommendations.hotels,
+          ...geminiRecommendations.activities
+        ];
+        
+        console.log('🤖 Combined recommendations count:', allRecommendations.length);
+        console.log('🤖 Combined recommendations:', allRecommendations);
+        
+        console.log('🤖 Setting Gemini-generated itineraries:', geminiRecommendations.itineraries?.length || 0);
+        console.log('🤖 First Gemini itinerary days:', geminiRecommendations.itineraries?.[0]?.days?.length || 0);
+        console.log('🤖 Second Gemini itinerary days:', geminiRecommendations.itineraries?.[1]?.days?.length || 0);
+        
+        // TEMPORARY: Always use mock data for everything until Gemini is fixed
+        console.log('🔧 TEMPORARILY using ALL mock data for reliability');
+        
+        // Use mock data for everything
+        const mockRecommendations = generateMockRecommendations(searchData.to);
+        const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
+        const mockTravelOptions = generateMockTravelOptions(searchData.to);
+        const mockFoodOptions = generateMockFoodOptions(searchData.to);
+        
+        console.log('🔧 Mock recommendations for', searchData.to, ':', mockRecommendations.length);
+        console.log('🔧 Mock itineraries generated:', mockItineraries.length, 'itineraries');
+        console.log('🔧 First mock itinerary days:', mockItineraries[0]?.days?.length || 0);
+        
+        setRecommendations(mockRecommendations);
+        setItineraries(mockItineraries);
+        setWeather(combinedWeatherInfo);
+        setTravelOptions(mockTravelOptions);
+        setFoodOptions(mockFoodOptions);
+        setLuxuryRecommendations([
+          { type: 'hotel', name: 'Luxury Hotel', description: 'Premium accommodation', price: '₹15,000+', rating: 4.8, specialFeatures: ['Spa', 'Fine Dining'] }
+        ]);
+        
+      } catch (geminiError) {
+        console.error('🚫 Gemini failed, using enhanced mock data:', geminiError);
+        console.log('🔄 Falling back to mock recommendations for everything');
+        
+        // Enhanced fallback with weather-aware tips
+        const combinedWeatherInfo = {
+          ...weatherInfo,
+          travelTips: liveWeather.travelTips || []
+        };
+        
+        // Generate mock data
+        const mockRecommendations = generateMockRecommendations(searchData.to);
+        const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
+        const mockTravelOptions = generateMockTravelOptions(searchData.to);
+        const mockFoodOptions = generateMockFoodOptions(searchData.to);
+        
+        setRecommendations(mockRecommendations);
+        setItineraries(mockItineraries);
+        setWeather(combinedWeatherInfo);
+        setTravelOptions(mockTravelOptions);
+        setFoodOptions(mockFoodOptions);
+        setLuxuryRecommendations([
+          { type: 'hotel', name: 'Luxury Hotel', description: 'Premium accommodation', price: '₹15,000+', rating: 4.8, specialFeatures: ['Spa', 'Fine Dining'] }
+        ]);
+      }
       
     } catch (error) {
       console.error('❌ Error fetching recommendations:', error);
@@ -113,8 +169,12 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   }, [searchData]);
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered with searchData.to:', searchData.to);
     if (searchData.to) {
+      console.log('✅ Calling generateRecommendations...');
       generateRecommendations();
+    } else {
+      console.log('❌ No destination, skipping generateRecommendations');
     }
   }, [searchData, generateRecommendations]);
 
@@ -137,6 +197,24 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
         { type: 'restaurant' as const, name: 'Indian Accent', description: 'Modern Indian fine dining', rating: 4.8, priceRange: '₹₹₹₹', cuisine: 'Modern Indian' },
         { type: 'hotel' as const, name: 'The Imperial', description: 'Colonial-era luxury hotel', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Spa', 'Business Center'] },
         { type: 'activity' as const, name: 'Old Delhi Food Walk', description: 'Street food adventure', rating: 4.5, duration: '3 hours', price: '₹800' }
+      ],
+      'Hyderabad': [
+        { type: 'attraction' as const, name: 'Charminar', description: 'Iconic 16th-century monument and mosque', rating: 4.4, category: 'historical' },
+        { type: 'restaurant' as const, name: 'Paradise Restaurant', description: 'Famous for authentic Hyderabadi biryani', rating: 4.5, priceRange: '₹₹', cuisine: 'Hyderabadi' },
+        { type: 'hotel' as const, name: 'Taj Falaknuma Palace', description: 'Palatial luxury hotel with royal heritage', rating: 4.8, priceRange: '₹₹₹₹₹', amenities: ['Palace', 'Spa', 'Heritage'] },
+        { type: 'activity' as const, name: 'Golconda Fort Exploration', description: 'Historic fort with acoustic marvels', rating: 4.3, duration: '3 hours', price: '₹600' }
+      ],
+      'Chennai': [
+        { type: 'attraction' as const, name: 'Marina Beach', description: 'Second longest urban beach in the world', rating: 4.2, category: 'beach' },
+        { type: 'restaurant' as const, name: 'Dakshin', description: 'Authentic South Indian cuisine', rating: 4.6, priceRange: '₹₹₹', cuisine: 'South Indian' },
+        { type: 'hotel' as const, name: 'The Leela Palace Chennai', description: 'Luxury beachfront hotel', rating: 4.7, priceRange: '₹₹₹₹', amenities: ['Beach', 'Spa', 'Pool'] },
+        { type: 'activity' as const, name: 'Mahabalipuram Day Trip', description: 'UNESCO World Heritage rock temples', rating: 4.4, duration: '6 hours', price: '₹2000' }
+      ],
+      'Bangalore': [
+        { type: 'attraction' as const, name: 'Lalbagh Botanical Garden', description: 'Historic botanical garden with glass house', rating: 4.4, category: 'nature' },
+        { type: 'restaurant' as const, name: 'MTR', description: 'Legendary South Indian breakfast institution', rating: 4.5, priceRange: '₹₹', cuisine: 'South Indian' },
+        { type: 'hotel' as const, name: 'The Oberoi Bangalore', description: 'Contemporary luxury in the heart of the city', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Business', 'Spa', 'Fine Dining'] },
+        { type: 'activity' as const, name: 'Pub Crawl in Koramangala', description: 'Experience Bangalore\'s famous pub culture', rating: 4.2, duration: '4 hours', price: '₹1500' }
       ]
     };
 
@@ -208,7 +286,6 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
 
   const generatePopularItinerary = (destination: string, days: number) => {
     console.log(`🏗️ Generating popular itinerary for ${destination}, ${days} days`);
-    console.log(`🏗️ Days parameter type:`, typeof days, 'value:', days);
     
     const dayTemplates = [
       {
@@ -283,20 +360,14 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
       }
     ];
 
-    console.log(`🏗️ About to create Array.from with length:`, days);
-    
-    const result = Array.from({ length: days }, (_, i) => {
-      console.log(`🏗️ Creating day ${i + 1}`);
-      return {
-        day: i + 1,
-        title: `Day ${i + 1}: ${dayTemplates[i % dayTemplates.length].title}`,
-        activities: dayTemplates[i % dayTemplates.length].activities,
-        tips: dayTemplates[i % dayTemplates.length].tips
-      };
-    });
+    const result = Array.from({ length: days }, (_, i) => ({
+      day: i + 1,
+      title: `Day ${i + 1}: ${dayTemplates[i % dayTemplates.length].title}`,
+      activities: dayTemplates[i % dayTemplates.length].activities,
+      tips: dayTemplates[i % dayTemplates.length].tips
+    }));
     
     console.log(`🏗️ Generated ${result.length} days for popular itinerary`);
-    console.log(`🏗️ Result array:`, result);
     return result;
   };
 
@@ -740,8 +811,7 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
                         <div className="space-y-2">
                           {itinerary.days.map((day, dayIdx) => (
                             <div key={dayIdx} className="bg-gray-50 p-3 rounded text-sm">
-                              <strong className="text-gray-800">Day {day.day}:</strong> 
-                              <span className="text-gray-600 ml-1">{day.title}</span>
+                              <span className="text-gray-800 font-medium">{day.title}</span>
                             </div>
                           ))}
                         </div>
