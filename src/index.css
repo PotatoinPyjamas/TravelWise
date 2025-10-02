@@ -16,3 +16,70 @@
       monospace;
   }
 }
+
+/* Safari-specific fixes */
+@layer utilities {
+  /* Fix for Safari flexbox issues */
+  .safari-flex-fix {
+    display: -webkit-flex;
+    display: flex;
+  }
+  
+  /* Fix for Safari grid issues */
+  .safari-grid-fix {
+    display: -webkit-grid;
+    display: grid;
+  }
+  
+  /* Fix for Safari backdrop-filter */
+  .safari-backdrop-fix {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  
+  /* Fix for Safari transform issues */
+  .safari-transform-fix {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Safari-specific global fixes */
+@layer base {
+  /* Fix Safari viewport issues */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Fix Safari header positioning */
+  header {
+    position: relative;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  /* Fix Safari flexbox gap issues */
+  .flex {
+    -webkit-display: flex;
+    display: -webkit-flex;
+    display: flex;
+  }
+  
+  /* Fix Safari grid gap issues */
+  .grid {
+    -webkit-display: grid;
+    display: -webkit-grid;
+    display: grid;
+  }
+  
+  /* Fix Safari button styling */
+  button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+}

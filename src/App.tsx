@@ -43,8 +43,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <header className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden" style={{WebkitTransform: 'translateZ(0)'}}>
+      <header className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg relative z-10" style={{WebkitTransform: 'translateZ(0)'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex-shrink-0">
@@ -115,7 +115,7 @@ function App() {
       <main>
         {!showResults ? (
           <>
-            <div className="bg-gradient-to-b from-primary-50 to-white py-8 sm:py-12 lg:py-16 min-h-screen">
+            <div className="bg-gradient-to-b from-primary-50 to-white py-8 sm:py-12 lg:py-16 min-h-screen" style={{WebkitTransform: 'translateZ(0)', paddingTop: '2rem'}}>
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">Find Your Perfect Flight</h2>
                 <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-8 sm:mb-10 lg:mb-12">Discover amazing destinations with personalized recommendations</p>
