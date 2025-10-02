@@ -1,46 +1,129 @@
-# Getting Started with Create React App
+# TravelWise - Smart Travel Booking Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A MakeMyTrip-inspired travel booking clone focused on flight booking with AI-powered personalized recommendations.
 
-## Available Scripts
+## 🌟 Features
 
-In the project directory, you can run:
+### Core Functionality
+- **Flight Search**: Search for one-way and round-trip flights between cities
+- **Smart Filters**: Filter flights by price (cheapest) and duration (fastest)
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
 
-### `npm start`
+### AI-Powered Personalization
+- **Consent-Based Personalization**: Non-intrusive consent popup for data usage
+- **Smart Recommendations**: Personalized suggestions for attractions, restaurants, and hotels
+- **Curated Itineraries**: Popular and offbeat travel itineraries (up to 7 days)
+- **Weather Integration**: Real-time weather information for destinations
+- **Cross-Selling**: Budget-friendly and luxury recommendations based on flight choices
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### User Experience
+- **Modern UI**: Clean, intuitive interface with gradient color scheme
+- **Expandable AI Tab**: Non-intrusive recommendations that expand on demand
+- **Smart Travel Tips**: Context-aware tips embedded in itineraries
+- **Popular Routes**: Quick selection of frequently traveled routes
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## 🚀 Getting Started
 
-### `npm test`
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Installation
 
-### `npm run build`
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd travel-booking-clone
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Install dependencies:
+```bash
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Start the development server:
+```bash
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### `npm run eject`
+## 🛠️ Technology Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- **Frontend**: React 18 with TypeScript
+- **Styling**: CSS3 with custom properties and animations
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
+- **Build Tool**: Create React App
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📱 Key Components
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### FlightSearch
+- Interactive search form with city autocomplete
+- One-way/Round-trip toggle
+- Date selection with validation
+- Popular routes quick selection
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### ConsentPopup
+- GDPR-compliant consent management
+- Clear benefits explanation
+- Non-intrusive design
+- Persistent storage of user preference
 
-## Learn More
+### AIRecommendations
+- Expandable recommendation panel
+- Weather information display
+- Categorized recommendations (attractions, restaurants, hotels)
+- Dual itinerary system (popular vs offbeat)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### FlightResults
+- Real-time flight search simulation
+- Advanced filtering options
+- Cross-selling recommendations
+- Luxury options toggle
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🎨 Design Philosophy
+
+- **User-Centric**: Prioritizes user experience and ease of use
+- **Non-Intrusive**: Personalization features are optional and clearly explained
+- **Modern**: Clean, contemporary design with smooth animations
+- **Accessible**: Responsive design that works across all devices
+- **Performance**: Optimized for fast loading and smooth interactions
+
+## 🔧 Customization
+
+### Adding New Cities
+Update the `popularCities` array in `FlightSearch.tsx` to add more cities to the autocomplete.
+
+### Modifying Recommendations
+Edit the mock data generators in `AIRecommendations.tsx` to customize recommendations for different destinations.
+
+### Styling Changes
+All styles are contained in component-specific CSS files. The main color scheme can be modified in `App.css`.
+
+## 📈 Future Enhancements
+
+- Real API integration for flights and weather
+- User authentication and profile management
+- Booking and payment processing
+- Advanced filtering (airlines, stops, price range)
+- Social features and reviews
+- Multi-language support
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by MakeMyTrip's user interface and functionality
+- Icons provided by Lucide React
+- Built with Create React App for rapid development
