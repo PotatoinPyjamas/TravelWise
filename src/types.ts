@@ -34,6 +34,10 @@ export interface Recommendation {
   rating?: number;
   priceRange?: string;
   category?: string;
+  cuisine?: string;
+  amenities?: string[];
+  duration?: string;
+  price?: string;
 }
 
 export interface Itinerary {
@@ -65,4 +69,11 @@ export interface WeatherInfo {
   temperature: string;
   description: string;
   icon: string;
+  humidity?: number;
+  windSpeed?: number;
+  feelsLike?: string;
+  location?: string;
+  localTime?: string;
+  travelTips?: string[];
+  conditionCode?: number;
 }
