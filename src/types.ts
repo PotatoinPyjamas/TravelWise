@@ -52,6 +52,8 @@ export interface ItineraryDay {
   title: string;
   activities: ItineraryActivity[];
   tips?: string[];
+  totalBudget?: string;
+  transportTips?: string;
 }
 
 export interface ItineraryActivity {
@@ -62,6 +64,8 @@ export interface ItineraryActivity {
   duration?: string;
   cost?: string;
   tips?: string[];
+  transport?: string;
+  type?: 'food' | 'sightseeing' | 'activity' | 'shopping';
 }
 
 export interface WeatherInfo {

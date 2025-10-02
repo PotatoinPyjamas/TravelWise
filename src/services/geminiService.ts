@@ -36,14 +36,23 @@ export const generatePersonalizedRecommendations = async (
     }
     const itineraryDays = Math.max(1, Math.min(tripDays, 7));
 
-    // Create comprehensive city-specific prompt
-    const prompt = `You are a local travel expert for ${searchData.to}. Create detailed, authentic recommendations for a ${tripDays}-day trip from ${searchData.from} to ${searchData.to}.
+    // Create comprehensive city-specific prompt with detailed itinerary focus
+    const prompt = `You are a local travel expert and itinerary planner for ${searchData.to}. Create a detailed, travel-friendly ${tripDays}-day itinerary with specific recommendations.
 
-Weather context: ${weather?.temperature || 'N/A'}, ${weather?.condition || 'N/A'}
-Trip duration: ${tripDays} days
-Travelers: ${searchData.passengers} people
+TRIP DETAILS:
+- Destination: ${searchData.to}, India
+- Duration: ${tripDays} days (create exactly ${itineraryDays} days of itinerary)
+- Weather: ${weather?.temperature || 'N/A'}, ${weather?.condition || 'N/A'}
+- Travelers: ${searchData.passengers} people
+- From: ${searchData.from}
 
-Generate REAL, SPECIFIC places and activities in ${searchData.to}. Include actual restaurant names, specific attractions, real hotels, and authentic local experiences.
+REQUIREMENTS:
+1. Include REAL restaurants, attractions, and activities in ${searchData.to}
+2. Add specific local transport options (Metro/Bus/Auto/Taxi) for each activity
+3. Include breakfast, lunch, dinner recommendations with actual restaurant names
+4. Balance sightseeing, cultural experiences, food, and activities
+5. Consider travel time between locations
+6. Add practical tips for each day
 
 Respond with ONLY valid JSON in this exact format:
 
@@ -64,7 +73,10 @@ Respond with ONLY valid JSON in this exact format:
     {"name": "Dish Name", "description": "Description", "price": "₹150", "rating": 4.5}
   ],
   "travelOptions": [
-    {"name": "Transport", "description": "Description", "price": "₹50-100"}
+    {"name": "Metro System", "description": "Fast rail network with stations and lines", "price": "₹10-60", "category": "metro", "rating": 4.5},
+    {"name": "Local Bus", "description": "City bus network covering all areas", "price": "₹5-30", "category": "bus", "rating": 4.0},
+    {"name": "Auto Rickshaw", "description": "Three-wheeler for short distances", "price": "₹30-150", "category": "auto", "rating": 4.1},
+    {"name": "Ola/Uber", "description": "App-based cab service", "price": "₹50-400", "category": "cab", "rating": 4.3}
   ],
   "luxuryRecommendations": [
     {"name": "Luxury Option", "description": "Description", "price": "₹10,000+", "rating": 4.9}
@@ -73,48 +85,83 @@ Respond with ONLY valid JSON in this exact format:
     {
       "type": "popular",
       "title": "${itineraryDays}-Day Popular ${searchData.to} Experience", 
-      "description": "Discover the must-see attractions and famous spots in ${searchData.to}",
+      "description": "Comprehensive itinerary covering must-see attractions, local cuisine, and cultural experiences in ${searchData.to}",
       "days": [
         {
           "day": 1, 
-          "title": "Day 1: Arrival & City Center", 
+          "title": "Day 1: Arrival & City Highlights", 
           "activities": [
-            {"time": "10:00 AM", "title": "Specific Activity Name", "description": "Detailed description of what to do", "location": "${searchData.to}", "duration": "2 hours"},
-            {"time": "1:00 PM", "title": "Lunch at Specific Restaurant", "description": "Try local specialties", "location": "${searchData.to}", "duration": "1 hour"},
-            {"time": "3:00 PM", "title": "Famous Landmark Visit", "description": "Visit iconic attraction", "location": "${searchData.to}", "duration": "2 hours"}
+            {"time": "8:00 AM", "title": "Breakfast at [Real Restaurant Name]", "description": "Start with authentic local breakfast", "location": "Specific area in ${searchData.to}", "duration": "1 hour", "transport": "Metro/Bus/Auto from hotel", "cost": "₹200-300", "type": "food"},
+            {"time": "10:00 AM", "title": "[Famous Landmark Name]", "description": "Visit iconic attraction with historical significance", "location": "${searchData.to}", "duration": "2 hours", "transport": "Metro Line X to Y Station", "cost": "₹50-100", "type": "sightseeing"},
+            {"time": "1:00 PM", "title": "Lunch at [Real Restaurant Name]", "description": "Try signature local dishes", "location": "Near landmark", "duration": "1 hour", "transport": "Walking distance", "cost": "₹400-600", "type": "food"},
+            {"time": "3:00 PM", "title": "[Cultural Activity/Museum]", "description": "Immerse in local culture and history", "location": "${searchData.to}", "duration": "2 hours", "transport": "Auto/Taxi", "cost": "₹100-200", "type": "activity"},
+            {"time": "6:00 PM", "title": "[Evening Spot/Market]", "description": "Shopping and local atmosphere", "location": "${searchData.to}", "duration": "2 hours", "transport": "Bus/Metro", "cost": "₹30-50", "type": "activity"},
+            {"time": "8:00 PM", "title": "Dinner at [Real Restaurant Name]", "description": "End day with local specialty cuisine", "location": "${searchData.to}", "duration": "1.5 hours", "transport": "Auto/Taxi", "cost": "₹600-1000", "type": "food"}
           ], 
-          "tips": ["Practical tip for day 1", "Local advice"]
+          "tips": ["Book tickets online for popular attractions", "Carry cash for local transport", "Try the local breakfast specialty", "Evening markets are great for souvenirs"],
+          "totalBudget": "₹1500-2500 per person",
+          "transportTips": "Get a local transport card for easy metro/bus travel"
         }
       ]
     },
     {
       "type": "offbeat",
       "title": "${itineraryDays}-Day Hidden Gems of ${searchData.to}",
-      "description": "Explore local secrets and authentic experiences in ${searchData.to}",
+      "description": "Explore lesser-known treasures and authentic local experiences away from tourist crowds",
       "days": [
         {
           "day": 1,
-          "title": "Day 1: Local Neighborhoods",
+          "title": "Day 1: Local Life & Hidden Spots",
           "activities": [
-            {"time": "9:00 AM", "title": "Local Market Visit", "description": "Experience authentic local life", "location": "${searchData.to}", "duration": "2 hours"},
-            {"time": "12:00 PM", "title": "Hidden Local Eatery", "description": "Where locals actually eat", "location": "${searchData.to}", "duration": "1 hour"},
-            {"time": "2:00 PM", "title": "Off-beat Attraction", "description": "Lesser-known but amazing spot", "location": "${searchData.to}", "duration": "2 hours"}
+            {"time": "7:30 AM", "title": "Local Tea Stall/Breakfast Joint", "description": "Experience morning routine like a local", "location": "Local neighborhood", "duration": "45 minutes", "transport": "Auto/Walking", "cost": "₹50-100", "type": "food"},
+            {"time": "9:00 AM", "title": "[Hidden Local Market/Area]", "description": "Authentic local market experience", "location": "Off-tourist-path area", "duration": "2 hours", "transport": "Local bus/Auto", "cost": "₹20-40", "type": "activity"},
+            {"time": "12:00 PM", "title": "[Local Family Restaurant]", "description": "Home-style cooking at local favorite", "location": "Residential area", "duration": "1 hour", "transport": "Walking/Auto", "cost": "₹200-350", "type": "food"},
+            {"time": "2:00 PM", "title": "[Lesser-known Attraction]", "description": "Hidden gem with local significance", "location": "${searchData.to}", "duration": "2 hours", "transport": "Local transport", "cost": "₹50-150", "type": "sightseeing"},
+            {"time": "5:00 PM", "title": "[Local Activity/Craft Center]", "description": "Learn about local crafts or traditions", "location": "${searchData.to}", "duration": "1.5 hours", "transport": "Bus/Metro", "cost": "₹100-300", "type": "activity"},
+            {"time": "7:30 PM", "title": "[Street Food Area]", "description": "Evening street food adventure", "location": "Local street food hub", "duration": "1.5 hours", "transport": "Auto/Walking", "cost": "₹150-250", "type": "food"}
           ],
-          "tips": ["Local insider tip", "Cultural advice"]
+          "tips": ["Learn basic local language phrases", "Ask locals for recommendations", "Bargain at local markets", "Try street food from busy stalls"],
+          "totalBudget": "₹800-1500 per person",
+          "transportTips": "Use local buses and shared autos for authentic experience"
         }
       ]
     }
   ]
 }
 
-IMPORTANT: Generate exactly ${itineraryDays} days for EACH itinerary (both popular and offbeat). Each day should have 3-4 activities with specific times. Use REAL places in ${searchData.to}, not generic names.
+IMPORTANT REQUIREMENTS:
+1. Generate exactly ${itineraryDays} days for EACH itinerary (both popular and offbeat)
+2. Each day should have 6 activities: breakfast, morning activity, lunch, afternoon activity, evening activity, dinner
+3. Include specific transport options for ${searchData.to}:
+   - Metro lines and stations (if available)
+   - Bus routes and numbers
+   - Auto-rickshaw/taxi estimates
+   - Walking distances
+4. Use REAL places in ${searchData.to}:
+   - Actual restaurant names and signature dishes
+   - Real attractions with proper names
+   - Specific neighborhoods and markets
+   - Local transport hubs and stations
+5. Include costs for transport and activities
+6. Add practical travel tips for each day
+7. Weather-appropriate activities (current: ${weather?.condition || 'unknown'})
 
-For ${searchData.to}, include:
-- Actual restaurant names and local dishes
-- Real attractions and landmarks
-- Specific neighborhoods and areas
-- Local transportation options
-- Weather-appropriate activities (current: ${weather?.condition || 'unknown'})
+For ${searchData.to} specifically, research and include:
+- Local metro/bus system details (exact names like "Delhi Metro", "Mumbai Local Trains")
+- Available transport modes: Metro (if exists), City Buses, Auto Rickshaws, Ola/Uber
+- Real transport pricing for ${searchData.to}
+- Famous local breakfast spots
+- Signature local dishes and where to find them
+- Real attraction names and locations
+- Popular local markets and shopping areas
+- Evening entertainment spots
+- Transport cards or passes available
+
+TRANSPORT REQUIREMENTS:
+- Only include transport modes that actually exist in ${searchData.to}
+- Use real system names (e.g., "Delhi Metro", "BEST Buses", "Mumbai Local Trains")
+- Provide accurate pricing ranges for ${searchData.to}
+- Include ratings based on actual user experience
 
 Return ONLY valid JSON, no additional text.
 `;

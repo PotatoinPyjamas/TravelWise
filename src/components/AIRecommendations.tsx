@@ -86,27 +86,48 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
         console.log('🤖 First Gemini itinerary days:', geminiRecommendations.itineraries?.[0]?.days?.length || 0);
         console.log('🤖 Second Gemini itinerary days:', geminiRecommendations.itineraries?.[1]?.days?.length || 0);
         
-        // TEMPORARY: Always use mock data for everything until Gemini is fixed
-        console.log('🔧 TEMPORARILY using ALL mock data for reliability');
+        // Try Gemini first, with enhanced itinerary focus
+        console.log('✨ Using Gemini for enhanced itineraries with transport details');
         
-        // Use mock data for everything
+        if (geminiRecommendations.itineraries && 
+            geminiRecommendations.itineraries.length > 0 && 
+            geminiRecommendations.itineraries[0].days && 
+            geminiRecommendations.itineraries[0].days.length > 0) {
+          console.log('✅ Using Gemini itineraries with detailed activities');
+          setItineraries(geminiRecommendations.itineraries);
+        } else {
+          console.log('⚠️ Gemini itineraries incomplete, using enhanced mock itineraries');
+          const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
+          setItineraries(mockItineraries);
+        }
+        
+        // TEMPORARY: Force city-specific mock data to test
+        console.log('🔧 TEMPORARILY forcing city-specific mock data for', searchData.to);
         const mockRecommendations = generateMockRecommendations(searchData.to);
-        const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
-        const mockTravelOptions = generateMockTravelOptions(searchData.to);
-        const mockFoodOptions = generateMockFoodOptions(searchData.to);
-        
-        console.log('🔧 Mock recommendations for', searchData.to, ':', mockRecommendations.length);
-        console.log('🔧 Mock itineraries generated:', mockItineraries.length, 'itineraries');
-        console.log('🔧 First mock itinerary days:', mockItineraries[0]?.days?.length || 0);
-        
+        console.log('🔄 Mock recommendations for', searchData.to, ':', mockRecommendations);
+        console.log('🔄 First mock recommendation:', mockRecommendations[0]);
         setRecommendations(mockRecommendations);
-        setItineraries(mockItineraries);
+        
+        // Set all the state with Gemini data
+        console.log('🎯 Setting recommendations. Count:', allRecommendations.length);
+        console.log('🎯 First recommendation:', allRecommendations[0]);
+        
+        // if (allRecommendations.length > 0) {
+        //   console.log('✅ Using Gemini recommendations');
+        //   setRecommendations(allRecommendations);
+        // } else {
+        //   console.log('⚠️ No Gemini recommendations, using mock data for', searchData.to);
+        //   const mockRecommendations = generateMockRecommendations(searchData.to);
+        //   console.log('🔄 Mock recommendations:', mockRecommendations);
+        //   setRecommendations(mockRecommendations);
+        // }
         setWeather(combinedWeatherInfo);
-        setTravelOptions(mockTravelOptions);
-        setFoodOptions(mockFoodOptions);
-        setLuxuryRecommendations([
-          { type: 'hotel', name: 'Luxury Hotel', description: 'Premium accommodation', price: '₹15,000+', rating: 4.8, specialFeatures: ['Spa', 'Fine Dining'] }
-        ]);
+        setTravelOptions(geminiRecommendations.travelOptions || generateMockTravelOptions(searchData.to));
+        const finalFoodOptions = geminiRecommendations.foodOptions || generateMockFoodOptions(searchData.to);
+        console.log('🍽️ Setting food options:', finalFoodOptions);
+        console.log('🍽️ First food option:', finalFoodOptions[0]);
+        setFoodOptions(finalFoodOptions);
+        setLuxuryRecommendations(geminiRecommendations.luxuryRecommendations || getLuxuryRecommendations());
         
       } catch (geminiError) {
         console.error('🚫 Gemini failed, using enhanced mock data:', geminiError);
@@ -119,8 +140,8 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
         };
         
         // Generate mock data
-        const mockRecommendations = generateMockRecommendations(searchData.to);
-        const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
+    const mockRecommendations = generateMockRecommendations(searchData.to);
+    const mockItineraries = generateMockItineraries(searchData.to, searchData.departureDate, searchData.returnDate);
         const mockTravelOptions = generateMockTravelOptions(searchData.to);
         const mockFoodOptions = generateMockFoodOptions(searchData.to);
         
@@ -179,50 +200,106 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
   }, [searchData, generateRecommendations]);
 
   const generateMockRecommendations = (destination: string): Recommendation[] => {
+    // City-specific recommendations with 2 must-visit places and 2 accommodations (1 budget-friendly)
     const destinations: { [key: string]: Recommendation[] } = {
-      'Goa': [
-        { type: 'attraction' as const, name: 'Baga Beach', description: 'Famous for water sports and nightlife', rating: 4.5, category: 'beach' },
-        { type: 'restaurant' as const, name: 'Thalassa', description: 'Greek cuisine with stunning cliff views', rating: 4.7, priceRange: '₹₹₹', cuisine: 'Greek' },
-        { type: 'hotel' as const, name: 'Taj Exotica', description: 'Luxury beachfront resort', rating: 4.8, priceRange: '₹₹₹₹', amenities: ['Beach', 'Spa', 'Pool'] },
-        { type: 'activity' as const, name: 'Spice Plantation Tour', description: 'Explore organic spice farms', rating: 4.3, duration: '4 hours', price: '₹1500' }
+      'Hyderabad': [
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Charminar', description: 'Iconic 16th-century monument and symbol of Hyderabad', rating: 4.4, category: 'historical' },
+        { type: 'attraction' as const, name: 'Golconda Fort', description: 'Historic fort complex with acoustic marvels and diamond mines', rating: 4.3, category: 'historical' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'Taj Falaknuma Palace', description: 'Palatial luxury hotel with royal Nizam heritage', rating: 4.8, priceRange: '₹₹₹₹', amenities: ['Palace', 'Spa', 'Heritage'] },
+        { type: 'hotel' as const, name: 'Hotel Sapphire', description: 'Budget-friendly hotel near Charminar with basic amenities', rating: 4.0, priceRange: '₹', amenities: ['WiFi', 'AC', 'Room Service'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Hyderabadi Biryani', description: 'World-famous aromatic basmati rice with tender mutton/chicken', rating: 4.8, priceRange: '₹300', cuisine: 'Hyderabadi' },
+        { type: 'restaurant' as const, name: 'Haleem', description: 'Slow-cooked lentil and meat stew, a Ramadan specialty', rating: 4.6, priceRange: '₹180', cuisine: 'Hyderabadi' },
+        { type: 'restaurant' as const, name: 'Double Ka Meetha', description: 'Traditional bread pudding with cardamom and nuts', rating: 4.4, priceRange: '₹120', cuisine: 'Dessert' }
       ],
       'Mumbai': [
-        { type: 'attraction' as const, name: 'Gateway of India', description: 'Iconic monument overlooking the harbor', rating: 4.4, category: 'historical' },
-        { type: 'restaurant' as const, name: 'Trishna', description: 'Contemporary Indian seafood', rating: 4.6, priceRange: '₹₹₹', cuisine: 'Seafood' },
-        { type: 'hotel' as const, name: 'The Taj Mahal Palace', description: 'Historic luxury hotel', rating: 4.7, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Spa', 'Pool'] },
-        { type: 'activity' as const, name: 'Dharavi Slum Tour', description: 'Eye-opening cultural experience', rating: 4.2, duration: '3 hours', price: '₹1200' }
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Gateway of India', description: 'Iconic monument overlooking the Arabian Sea harbor', rating: 4.4, category: 'historical' },
+        { type: 'attraction' as const, name: 'Marine Drive', description: 'Queen\'s Necklace - scenic coastal road perfect for evening walks', rating: 4.5, category: 'scenic' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'The Taj Mahal Palace', description: 'Historic luxury hotel overlooking Gateway of India', rating: 4.7, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Sea View', 'Spa'] },
+        { type: 'hotel' as const, name: 'Hotel City Palace', description: 'Budget-friendly accommodation in Colaba with clean rooms', rating: 4.1, priceRange: '₹', amenities: ['WiFi', 'AC', 'Central Location'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Vada Pav', description: 'Mumbai\'s iconic street burger with spiced potato fritter', rating: 4.7, priceRange: '₹25', cuisine: 'Street Food' },
+        { type: 'restaurant' as const, name: 'Pav Bhaji', description: 'Spiced vegetable curry served with buttered bread rolls', rating: 4.6, priceRange: '₹80', cuisine: 'Street Food' },
+        { type: 'restaurant' as const, name: 'Modak', description: 'Sweet steamed dumplings filled with jaggery and coconut', rating: 4.3, priceRange: '₹60', cuisine: 'Dessert' },
+        // Getting Around (4)
+        { type: 'activity' as const, name: 'Mumbai Metro', description: 'Fast and efficient metro system covering major areas', rating: 4.4, duration: 'Per trip', price: '₹10-60', category: 'metro' },
+        { type: 'activity' as const, name: 'Local Trains', description: 'Lifeline of Mumbai - extensive suburban railway network', rating: 4.2, duration: 'Per trip', price: '₹5-15', category: 'train' },
+        { type: 'activity' as const, name: 'Auto Rickshaw', description: 'Three-wheelers for short distances and narrow lanes', rating: 4.0, duration: 'Per trip', price: '₹25-100', category: 'auto' },
+        { type: 'activity' as const, name: 'Ola/Uber', description: 'App-based cabs for comfortable door-to-door travel', rating: 4.3, duration: 'Per trip', price: '₹50-300', category: 'cab' }
       ],
       'Delhi': [
-        { type: 'attraction' as const, name: 'Red Fort', description: 'Mughal architectural masterpiece', rating: 4.3, category: 'historical' },
-        { type: 'restaurant' as const, name: 'Indian Accent', description: 'Modern Indian fine dining', rating: 4.8, priceRange: '₹₹₹₹', cuisine: 'Modern Indian' },
-        { type: 'hotel' as const, name: 'The Imperial', description: 'Colonial-era luxury hotel', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Spa', 'Business Center'] },
-        { type: 'activity' as const, name: 'Old Delhi Food Walk', description: 'Street food adventure', rating: 4.5, duration: '3 hours', price: '₹800' }
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Red Fort', description: 'UNESCO World Heritage Mughal fortress and palace complex', rating: 4.3, category: 'historical' },
+        { type: 'attraction' as const, name: 'India Gate', description: 'War memorial and iconic landmark of New Delhi', rating: 4.4, category: 'memorial' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'The Imperial', description: 'Art Deco luxury hotel with colonial grandeur', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Spa', 'Business Center'] },
+        { type: 'hotel' as const, name: 'Hotel Tara Palace', description: 'Budget hotel in Chandni Chowk with traditional charm', rating: 4.0, priceRange: '₹', amenities: ['WiFi', 'Restaurant', 'Old Delhi Location'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Chole Bhature', description: 'Spicy chickpea curry with deep-fried bread', rating: 4.5, priceRange: '₹120', cuisine: 'North Indian' },
+        { type: 'restaurant' as const, name: 'Paranthe Wali Gali Parathas', description: 'Stuffed flatbreads from the famous Old Delhi lane', rating: 4.7, priceRange: '₹100', cuisine: 'Street Food' },
+        { type: 'restaurant' as const, name: 'Kulfi Faluda', description: 'Traditional ice cream with vermicelli and rose syrup', rating: 4.4, priceRange: '₹80', cuisine: 'Dessert' },
+        // Getting Around (4)
+        { type: 'activity' as const, name: 'Delhi Metro', description: 'Extensive metro network with 6 color-coded lines', rating: 4.5, duration: 'Per trip', price: '₹10-60', category: 'metro' },
+        { type: 'activity' as const, name: 'DTC Buses', description: 'Delhi Transport Corporation buses covering entire city', rating: 3.8, duration: 'Per trip', price: '₹5-25', category: 'bus' },
+        { type: 'activity' as const, name: 'Auto Rickshaw', description: 'Yellow-green three-wheelers with meter system', rating: 3.9, duration: 'Per trip', price: '₹30-150', category: 'auto' },
+        { type: 'activity' as const, name: 'Ola/Uber', description: 'Reliable app-based cabs available 24/7', rating: 4.2, duration: 'Per trip', price: '₹80-400', category: 'cab' }
       ],
-      'Hyderabad': [
-        { type: 'attraction' as const, name: 'Charminar', description: 'Iconic 16th-century monument and mosque', rating: 4.4, category: 'historical' },
-        { type: 'restaurant' as const, name: 'Paradise Restaurant', description: 'Famous for authentic Hyderabadi biryani', rating: 4.5, priceRange: '₹₹', cuisine: 'Hyderabadi' },
-        { type: 'hotel' as const, name: 'Taj Falaknuma Palace', description: 'Palatial luxury hotel with royal heritage', rating: 4.8, priceRange: '₹₹₹₹₹', amenities: ['Palace', 'Spa', 'Heritage'] },
-        { type: 'activity' as const, name: 'Golconda Fort Exploration', description: 'Historic fort with acoustic marvels', rating: 4.3, duration: '3 hours', price: '₹600' }
+      'Goa': [
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Baga Beach', description: 'Famous beach destination with water sports and nightlife', rating: 4.5, category: 'beach' },
+        { type: 'attraction' as const, name: 'Basilica of Bom Jesus', description: 'UNESCO World Heritage church with St. Francis Xavier\'s remains', rating: 4.6, category: 'religious' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'Taj Exotica Resort & Spa', description: 'Luxury beachfront resort with private beach access', rating: 4.8, priceRange: '₹₹₹₹', amenities: ['Beach', 'Spa', 'Pool'] },
+        { type: 'hotel' as const, name: 'Anjuna Beach Resort', description: 'Budget-friendly beachside accommodation with sea views', rating: 4.1, priceRange: '₹', amenities: ['Beach Access', 'Restaurant', 'WiFi'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Fish Curry Rice', description: 'Coconut-based fish curry with steamed rice', rating: 4.6, priceRange: '₹200', cuisine: 'Goan' },
+        { type: 'restaurant' as const, name: 'Bebinca', description: 'Traditional Goan layered dessert with coconut milk', rating: 4.3, priceRange: '₹150', cuisine: 'Dessert' },
+        { type: 'restaurant' as const, name: 'Prawn Balchão', description: 'Spicy pickled prawns in tangy sauce', rating: 4.5, priceRange: '₹250', cuisine: 'Seafood' }
       ],
       'Chennai': [
+        // Must Visit Places (2)
         { type: 'attraction' as const, name: 'Marina Beach', description: 'Second longest urban beach in the world', rating: 4.2, category: 'beach' },
-        { type: 'restaurant' as const, name: 'Dakshin', description: 'Authentic South Indian cuisine', rating: 4.6, priceRange: '₹₹₹', cuisine: 'South Indian' },
-        { type: 'hotel' as const, name: 'The Leela Palace Chennai', description: 'Luxury beachfront hotel', rating: 4.7, priceRange: '₹₹₹₹', amenities: ['Beach', 'Spa', 'Pool'] },
-        { type: 'activity' as const, name: 'Mahabalipuram Day Trip', description: 'UNESCO World Heritage rock temples', rating: 4.4, duration: '6 hours', price: '₹2000' }
+        { type: 'attraction' as const, name: 'Kapaleeshwarar Temple', description: 'Ancient Dravidian architecture temple dedicated to Lord Shiva', rating: 4.5, category: 'religious' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'The Leela Palace Chennai', description: 'Luxury beachfront hotel with contemporary design', rating: 4.7, priceRange: '₹₹₹₹', amenities: ['Beach', 'Spa', 'Pool'] },
+        { type: 'hotel' as const, name: 'Hotel Pandian', description: 'Budget hotel in T. Nagar with good connectivity', rating: 4.0, priceRange: '₹', amenities: ['WiFi', 'Restaurant', 'Shopping Area'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Chettinad Chicken', description: 'Spicy Tamil Nadu chicken curry with aromatic spices', rating: 4.6, priceRange: '₹220', cuisine: 'South Indian' },
+        { type: 'restaurant' as const, name: 'Masala Dosa', description: 'Crispy rice crepe with spiced potato filling', rating: 4.7, priceRange: '₹60', cuisine: 'South Indian' },
+        { type: 'restaurant' as const, name: 'Filter Coffee & Mysore Pak', description: 'South Indian coffee with traditional gram flour sweet', rating: 4.4, priceRange: '₹80', cuisine: 'Dessert' }
       ],
       'Bangalore': [
-        { type: 'attraction' as const, name: 'Lalbagh Botanical Garden', description: 'Historic botanical garden with glass house', rating: 4.4, category: 'nature' },
-        { type: 'restaurant' as const, name: 'MTR', description: 'Legendary South Indian breakfast institution', rating: 4.5, priceRange: '₹₹', cuisine: 'South Indian' },
-        { type: 'hotel' as const, name: 'The Oberoi Bangalore', description: 'Contemporary luxury in the heart of the city', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Business', 'Spa', 'Fine Dining'] },
-        { type: 'activity' as const, name: 'Pub Crawl in Koramangala', description: 'Experience Bangalore\'s famous pub culture', rating: 4.2, duration: '4 hours', price: '₹1500' }
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Lalbagh Botanical Garden', description: 'Historic 240-acre botanical garden with glass house', rating: 4.4, category: 'nature' },
+        { type: 'attraction' as const, name: 'Bangalore Palace', description: 'Tudor-style palace inspired by Windsor Castle', rating: 4.3, category: 'historical' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'The Oberoi Bangalore', description: 'Contemporary luxury hotel in the business district', rating: 4.6, priceRange: '₹₹₹₹', amenities: ['Business', 'Spa', 'Fine Dining'] },
+        { type: 'hotel' as const, name: 'Zostel Bangalore', description: 'Modern hostel with comfortable dorms and private rooms', rating: 4.2, priceRange: '₹', amenities: ['WiFi', 'Common Area', 'Cafe'] },
+        // Local Food (3)
+        { type: 'restaurant' as const, name: 'Bisi Bele Bath', description: 'Karnataka\'s signature spiced rice and lentil dish', rating: 4.5, priceRange: '₹100', cuisine: 'South Indian' },
+        { type: 'restaurant' as const, name: 'Mysore Masala Dosa', description: 'Crispy dosa with spicy red chutney', rating: 4.6, priceRange: '₹70', cuisine: 'South Indian' },
+        { type: 'restaurant' as const, name: 'Dharwad Peda', description: 'Famous Karnataka milk-based sweet', rating: 4.3, priceRange: '₹40', cuisine: 'Dessert' }
+      ],
+      'Kolkata': [
+        // Must Visit Places (2)
+        { type: 'attraction' as const, name: 'Victoria Memorial', description: 'Grand marble building and museum dedicated to Queen Victoria', rating: 4.4, category: 'historical' },
+        { type: 'attraction' as const, name: 'Howrah Bridge', description: 'Iconic cantilever bridge over the Hooghly River', rating: 4.3, category: 'architectural' },
+        // Where to Stay (2 - 1 luxury, 1 budget)
+        { type: 'hotel' as const, name: 'The Oberoi Grand Kolkata', description: 'Heritage luxury hotel in the heart of the city', rating: 4.5, priceRange: '₹₹₹₹', amenities: ['Heritage', 'Spa', 'Fine Dining'] },
+        { type: 'hotel' as const, name: 'Hotel Lindsay', description: 'Budget heritage hotel on Lindsay Street with old-world charm', rating: 4.0, priceRange: '₹', amenities: ['Heritage', 'WiFi', 'Central Location'] }
       ]
     };
 
     return destinations[destination] || [
+      // Default fallback
       { type: 'attraction' as const, name: 'Local Heritage Site', description: 'Explore the rich history and culture', rating: 4.2, category: 'cultural' },
-      { type: 'restaurant' as const, name: 'Local Cuisine Restaurant', description: 'Authentic regional flavors', rating: 4.4, priceRange: '₹₹', cuisine: 'Local' },
-      { type: 'hotel' as const, name: 'Boutique Hotel', description: 'Comfortable stay with local charm', rating: 4.3, priceRange: '₹₹₹', amenities: ['WiFi', 'AC'] },
-      { type: 'activity' as const, name: `${destination} City Tour`, description: 'Explore the city highlights', rating: 4.0, duration: '4 hours', price: '₹1000' }
+      { type: 'attraction' as const, name: 'City Center', description: 'Heart of the city with shopping and dining', rating: 4.1, category: 'urban' },
+      { type: 'hotel' as const, name: 'Luxury Hotel', description: 'Premium accommodation with modern amenities', rating: 4.5, priceRange: '₹₹₹₹', amenities: ['Spa', 'Pool', 'Fine Dining'] },
+      { type: 'hotel' as const, name: 'Budget Inn', description: 'Comfortable and affordable stay', rating: 4.0, priceRange: '₹', amenities: ['WiFi', 'AC', 'Room Service'] }
     ];
   };
 
@@ -262,7 +339,9 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
     
     console.log(`🗓️ Final calculation: Trip duration: ${tripDays} days, Itinerary will be: ${itineraryDays} days`);
 
-    const popularDays = generatePopularItinerary(destination, itineraryDays);
+    // FORCE city-specific itineraries for testing
+    console.log(`🔧 FORCING city-specific itinerary for ${destination}`);
+    const popularDays = getCitySpecificPopularItinerary(destination, itineraryDays);
     const offbeatDays = generateOffbeatItinerary(destination, itineraryDays);
     
     console.log(`🗓️ Generated popular itinerary days:`, popularDays.length);
@@ -368,6 +447,82 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
     }));
     
     console.log(`🏗️ Generated ${result.length} days for popular itinerary`);
+    return result;
+  };
+
+  const getCitySpecificPopularItinerary = (destination: string, days: number) => {
+    console.log(`🏗️ getCitySpecificPopularItinerary called for ${destination}, ${days} days`);
+    
+    // City-specific 7-day popular itineraries based on Gemini insights
+    const cityItineraries: { [key: string]: any[] } = {
+      'Mumbai': [
+        { title: 'Arrival & South Mumbai Icons', activities: [
+          { time: '10:00 AM', title: 'Gateway of India', description: 'Visit Mumbai\'s iconic monument overlooking the harbor', location: 'Colaba', duration: '1.5 hours', transport: 'Taxi from airport', cost: '₹500' },
+          { time: '12:00 PM', title: 'Lunch at Trishna', description: 'Contemporary Indian seafood restaurant', location: 'Fort', duration: '1.5 hours', transport: 'Walking', cost: '₹1200' },
+          { time: '2:30 PM', title: 'Chhatrapati Shivaji Terminus', description: 'UNESCO World Heritage Victorian Gothic railway station', location: 'Fort', duration: '1 hour', transport: 'Taxi', cost: '₹100' },
+          { time: '5:00 PM', title: 'Marine Drive Sunset', description: 'Walk along Queen\'s Necklace for stunning sunset', location: 'Marine Drive', duration: '2 hours', transport: 'Taxi', cost: '₹150' }
+        ], tips: ['Book airport pickup in advance', 'Carry cash for local transport', 'Marine Drive sunset is magical'] },
+        
+        { title: 'Bollywood & Markets', activities: [
+          { time: '9:00 AM', title: 'Film City Tour', description: 'Behind-the-scenes look at Bollywood movie making', location: 'Goregaon', duration: '3 hours', transport: 'Taxi', cost: '₹800' },
+          { time: '1:00 PM', title: 'Lunch at Britannia & Co', description: 'Iconic Parsi cafe famous for berry pulav', location: 'Fort', duration: '1 hour', transport: 'Local train', cost: '₹300' },
+          { time: '3:00 PM', title: 'Crawford Market Shopping', description: 'Historic market for spices, fruits, and souvenirs', location: 'Fort', duration: '2 hours', transport: 'Walking', cost: '₹500' },
+          { time: '6:00 PM', title: 'Linking Road Shopping', description: 'Street shopping paradise in Bandra', location: 'Bandra', duration: '2 hours', transport: 'Local train', cost: '₹1000' }
+        ], tips: ['Book Film City tour online', 'Bargain at Crawford Market', 'Try local train experience'] },
+        
+        { title: 'Spiritual & Cultural Mumbai', activities: [
+          { time: '8:00 AM', title: 'Siddhivinayak Temple', description: 'Mumbai\'s most revered Ganesha temple', location: 'Prabhadevi', duration: '1.5 hours', transport: 'Taxi', cost: '₹200' },
+          { time: '10:30 AM', title: 'Dhobi Ghat', description: 'World\'s largest outdoor laundry', location: 'Mahalaxmi', duration: '1 hour', transport: 'Taxi', cost: '₹150' },
+          { time: '12:30 PM', title: 'Lunch at Mahesh Lunch Home', description: 'Authentic Mangalorean seafood', location: 'Fort', duration: '1 hour', transport: 'Local train', cost: '₹800' },
+          { time: '3:00 PM', title: 'Prince of Wales Museum', description: 'Art, archaeology and natural history', location: 'Fort', duration: '2 hours', transport: 'Walking', cost: '₹300' },
+          { time: '6:00 PM', title: 'Juhu Beach', description: 'Popular beach with street food and sunset', location: 'Juhu', duration: '2 hours', transport: 'Taxi', cost: '₹300' }
+        ], tips: ['Dress modestly for temples', 'Try bhel puri at Juhu Beach', 'Museum closes at 6 PM'] }
+      ],
+      'Delhi': [
+        { title: 'Old Delhi Heritage Walk', activities: [
+          { time: '9:00 AM', title: 'Red Fort', description: 'UNESCO World Heritage Mughal fortress complex', location: 'Old Delhi', duration: '2 hours', transport: 'Metro to Lal Qila', cost: '₹35' },
+          { time: '11:30 AM', title: 'Jama Masjid', description: 'India\'s largest mosque with stunning architecture', location: 'Old Delhi', duration: '1 hour', transport: 'Walking', cost: '₹0' },
+          { time: '1:00 PM', title: 'Paranthe Wali Gali Lunch', description: 'Famous lane serving stuffed parathas since 1870s', location: 'Chandni Chowk', duration: '1 hour', transport: 'Walking', cost: '₹200' },
+          { time: '3:00 PM', title: 'Chandni Chowk Shopping', description: 'Oldest and busiest market in Old Delhi', location: 'Chandni Chowk', duration: '2 hours', transport: 'Walking', cost: '₹800' },
+          { time: '6:00 PM', title: 'Raj Ghat', description: 'Memorial to Mahatma Gandhi', location: 'Raj Ghat', duration: '1 hour', transport: 'Auto rickshaw', cost: '₹100' }
+        ], tips: ['Start early to avoid crowds', 'Carry cash for Old Delhi', 'Wear comfortable walking shoes'] },
+        
+        { title: 'New Delhi & Government Quarter', activities: [
+          { time: '9:00 AM', title: 'India Gate', description: 'War memorial and iconic landmark of New Delhi', location: 'India Gate', duration: '1 hour', transport: 'Metro to Central Secretariat', cost: '₹30' },
+          { time: '10:30 AM', title: 'Rashtrapati Bhavan', description: 'Presidential Palace with Mughal Gardens (if open)', location: 'Raisina Hill', duration: '2 hours', transport: 'Walking', cost: '₹50' },
+          { time: '1:00 PM', title: 'Lunch at Indian Accent', description: 'World-renowned modern Indian cuisine', location: 'Lodhi Road', duration: '1.5 hours', transport: 'Taxi', cost: '₹3000' },
+          { time: '3:30 PM', title: 'Humayun\'s Tomb', description: 'UNESCO site and precursor to Taj Mahal', location: 'Nizamuddin', duration: '2 hours', transport: 'Metro', cost: '₹30' },
+          { time: '6:00 PM', title: 'Lodhi Gardens', description: 'Beautiful park with medieval monuments', location: 'Lodhi Road', duration: '1.5 hours', transport: 'Metro', cost: '₹0' }
+        ], tips: ['Check Rashtrapati Bhavan visiting hours', 'Book Indian Accent in advance', 'Lodhi Gardens perfect for evening walk'] },
+        
+        { title: 'Markets & Modern Delhi', activities: [
+          { time: '10:00 AM', title: 'Lotus Temple', description: 'Bahai House of Worship with lotus-inspired architecture', location: 'Kalkaji', duration: '1.5 hours', transport: 'Metro to Kalkaji Mandir', cost: '₹35' },
+          { time: '12:30 PM', title: 'Connaught Place', description: 'Shopping and dining in Delhi\'s commercial heart', location: 'Connaught Place', duration: '2 hours', transport: 'Metro to Rajiv Chowk', cost: '₹30' },
+          { time: '2:30 PM', title: 'Lunch at Karim\'s', description: 'Historic restaurant famous for Mughlai cuisine', location: 'Jama Masjid', duration: '1 hour', transport: 'Metro', cost: '₹500' },
+          { time: '4:30 PM', title: 'Dilli Haat', description: 'Crafts bazaar showcasing all Indian states', location: 'INA', duration: '2 hours', transport: 'Metro to INA', cost: '₹30' },
+          { time: '7:00 PM', title: 'Kingdom of Dreams', description: 'Live Bollywood musical and cultural shows', location: 'Gurgaon', duration: '3 hours', transport: 'Metro + taxi', cost: '₹2000' }
+        ], tips: ['Maintain silence at Lotus Temple', 'Dilli Haat has entry fee', 'Book Kingdom of Dreams tickets online'] }
+      ]
+    };
+
+    const cityData = cityItineraries[destination] || [];
+    console.log(`🏗️ City data found for ${destination}:`, cityData.length, 'days available');
+    
+    const result = [];
+    
+    for (let i = 0; i < Math.min(days, cityData.length); i++) {
+      result.push({
+        day: i + 1,
+        title: `Day ${i + 1}: ${cityData[i].title}`,
+        activities: cityData[i].activities,
+        tips: cityData[i].tips,
+        totalBudget: '₹2000-4000 per person',
+        transportTips: 'Use Mumbai local trains and taxis for efficient travel'
+      });
+    }
+    
+    console.log(`🏗️ getCitySpecificPopularItinerary returning ${result.length} days for ${destination}`);
+    console.log(`🏗️ First day title:`, result[0]?.title);
     return result;
   };
 
@@ -852,15 +1007,15 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
                     </h4>
                     <p className="text-sm text-gray-600 mb-4">Taste the authentic flavors of {searchData.to}:</p>
                     <div className="space-y-3">
-                    {foodOptions.slice(0, 3).map((food, idx) => (
+                    {recommendations.filter(r => r.type === 'restaurant').slice(0, 3).map((rec, idx) => (
                         <div key={idx} className="border-b border-gray-100 pb-3 last:border-b-0">
-                          <h5 className="font-medium text-gray-800">{food.name}</h5>
-                          <p className="text-sm text-gray-600 mt-1">{food.description}</p>
+                          <h5 className="font-medium text-gray-800">{rec.name}</h5>
+                          <p className="text-sm text-gray-600 mt-1">{rec.description}</p>
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{food.type}</span>
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{rec.cuisine}</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-yellow-500">★ {food.rating}</span>
-                              <span className="text-xs font-medium text-green-600">{food.price}</span>
+                              <span className="text-xs text-yellow-500">★ {rec.rating}</span>
+                              <span className="text-xs font-medium text-green-600">{rec.priceRange}</span>
                             </div>
                           </div>
                         </div>
@@ -876,14 +1031,21 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
                     </h4>
                     <p className="text-sm text-gray-600 mb-4">Best ways to travel in {searchData.to}:</p>
                     <div className="space-y-3">
-                    {travelOptions.slice(0, 2).map((travel, idx) => (
+                    {recommendations.filter(r => r.type === 'activity' && r.category && ['metro', 'train', 'bus', 'auto', 'cab'].includes(r.category)).slice(0, 4).map((transport, idx) => (
                         <div key={idx} className="border-b border-gray-100 pb-3 last:border-b-0">
                           <div className="flex items-center gap-2 mb-1">
-                            {travel.icon === 'car' ? <Car size={14} /> : <Train size={14} />}
-                            <h5 className="font-medium text-gray-800">{travel.name}</h5>
+                            {transport.category === 'metro' && <Train size={14} className="text-blue-600" />}
+                            {transport.category === 'train' && <Train size={14} className="text-green-600" />}
+                            {transport.category === 'bus' && <Car size={14} className="text-orange-600" />}
+                            {transport.category === 'auto' && <Car size={14} className="text-yellow-600" />}
+                            {transport.category === 'cab' && <Car size={14} className="text-purple-600" />}
+                            <h5 className="font-medium text-gray-800">{transport.name}</h5>
                           </div>
-                          <p className="text-sm text-gray-600">{travel.description}</p>
-                          <span className="text-xs font-medium text-green-600 mt-1 inline-block">{travel.price}</span>
+                          <p className="text-sm text-gray-600">{transport.description}</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-xs font-medium text-green-600">{transport.price}</span>
+                            <span className="text-xs text-yellow-500">★ {transport.rating}</span>
+                          </div>
                         </div>
                       ))}
                       </div>
@@ -992,10 +1154,56 @@ const AIRecommendations: React.FC<AIRecommendationsProps> = ({ searchData }) => 
                           </span>
                         </div>
                         <p className="text-gray-600 mb-4 text-sm">{itinerary.description}</p>
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                           {itinerary.days.map((day, dayIdx) => (
-                            <div key={dayIdx} className="bg-gray-50 p-3 rounded text-sm">
-                              <span className="text-gray-800 font-medium">{day.title}</span>
+                            <div key={dayIdx} className="bg-gray-50 p-4 rounded-lg">
+                              <h6 className="text-gray-800 font-semibold mb-3">{day.title}</h6>
+                              
+                              {/* Activities */}
+                              {day.activities && day.activities.length > 0 && (
+                                <div className="space-y-2 mb-3">
+                                  {day.activities.slice(0, 3).map((activity, actIdx) => (
+                                    <div key={actIdx} className="flex items-start gap-3 text-xs">
+                                      <span className="text-blue-600 font-medium min-w-[60px]">{activity.time}</span>
+                                      <div className="flex-1">
+                                        <div className="font-medium text-gray-800">{activity.title}</div>
+                                        <div className="text-gray-600">{activity.description}</div>
+                                        {activity.transport && (
+                                          <div className="flex items-center gap-4 mt-1 text-gray-500">
+                                            <span className="flex items-center gap-1">
+                                              <Car size={12} />
+                                              {activity.transport}
+                                            </span>
+                                            {activity.cost && (
+                                              <span className="text-green-600 font-medium">{activity.cost}</span>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {day.activities.length > 3 && (
+                                    <div className="text-xs text-gray-500 text-center pt-2">
+                                      +{day.activities.length - 3} more activities...
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Budget and Transport Tips */}
+                              <div className="flex justify-between items-center text-xs text-gray-600 pt-2 border-t border-gray-200">
+                                {day.totalBudget && (
+                                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                    Budget: {day.totalBudget}
+                                  </span>
+                                )}
+                                {day.transportTips && (
+                                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1">
+                                    <Train size={10} />
+                                    {day.transportTips}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
