@@ -51,7 +51,7 @@ const FlightSearch: React.FC<FlightSearchProps> = ({ onSearch }) => {
   ];
 
   return (
-    <form className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto" onSubmit={handleSubmit}>
+    <form className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto mb-8" onSubmit={handleSubmit}>
       {/* Trip Type Toggle */}
       <div className="flex gap-1 sm:gap-2 mb-6 sm:mb-8 bg-gray-100 p-1 rounded-lg w-full sm:w-fit">
         <button
@@ -202,7 +202,7 @@ const FlightSearch: React.FC<FlightSearchProps> = ({ onSearch }) => {
       </div>
 
       {/* Popular Routes */}
-      <div className="border-t border-gray-200 pt-4 sm:pt-6">
+      <div className="border-t border-gray-200 pt-4 sm:pt-6 pb-2">
         <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Popular Routes</h4>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
           <button
